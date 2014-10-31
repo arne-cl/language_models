@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # Author: Arne Neumann <languagemodels.programming@arne.cl>
 
-from collections import Counter
+from itertools import chain, repeat
+from cytoolz import frequencies, concat
 
 
 def ngrams(words, n, pad=None):
@@ -34,10 +35,15 @@ def ngrams(words, n, pad=None):
         yield tuple(words[i:i+n])
 
 
-def ngram_counts(iterable, n, pad=' '):
+def ngram_counts(words, n, pad='<eos>'):
     """
-    generates a dictionary of ngram counts from the iterable input (e.g.
-    character n-grams if the input is a string or token n-grams if the input
-    is a list of token strings).
+    generates a dictionary of ngram counts from a list of words.
     """
-    return Counter(ngrams(iterable, n, pad))
+    return frequencies(ngrams(words, n, pad))
+
+
+def build_ngram_model(sentences, n, pad='<eos>'):
+    """
+    generates a dictionary of word-ngram counts from a list of sentences.
+    """
+    return frequencies( concat(ngrams(sent, n, pad) for sent in sentences) )
